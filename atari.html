@@ -18,9 +18,15 @@
   .background-layer {
     width: 100%;
     height: 100%;
-    background: black;
+    background: rgba(0,0,0,0.7);
     position: absolute;
-    opacity: 0.7;
+    color: white;
+    font-size: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    line-height: 100%;
   }
   .button-start-game{
     position:absolute;
@@ -75,15 +81,25 @@
 var canvas=document.getElementById('canvas'),
   buttonStart = document.getElementsByClassName('button-start-game')[0],
   backgroundLayer = document.getElementsByClassName('background-layer')[0],
-  score = document.getElementsByClassName('score')[0];
+  score = document.getElementsByClassName('score')[0],
+  timer;
+  buttonStart.focus();
 
 buttonStart.addEventListener('click', function(){
   backgroundLayer.classList.add('is-hidden');
   buttonStart.classList.add('is-hidden');
-  setInterval(draw,10);
+  timer = setInterval(draw,10);
 })
 function incrementCount() {
   score.innerText = +score.innerText +1
+}
+function stopGame() {
+  clearInterval(timer);
+  backgroundLayer.innerText= 'Your score is ' + score.innerText;
+  backgroundLayer.classList.remove('is-hidden');
+  setTimeout(function(){
+    document.location.reload();
+  }, 3000);
 }
 function tileSetting(){
   this.width = 50,
@@ -168,7 +184,7 @@ function draw(){
       }
     }
     else{
-      ball.VY=-1*ball.VY;
+      stopGame();
     }
     
   }
