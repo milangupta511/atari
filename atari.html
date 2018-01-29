@@ -81,7 +81,7 @@
 var canvas=document.getElementById('canvas'),
   buttonStart = document.getElementsByClassName('button-start-game')[0],
   backgroundLayer = document.getElementsByClassName('background-layer')[0],
-  score = document.getElementsByClassName('score')[0],
+  score = document.getElementsByClassName('score')[0], 
   timer;
   buttonStart.focus();
 
@@ -92,10 +92,16 @@ buttonStart.addEventListener('click', function(){
 })
 function incrementCount() {
   score.innerText = +score.innerText +1
+  console.log(+score.innerText)
+  console.log(totalTiles);
+  if(+score.innerText === totalTiles) {
+    stopGame(true);
+  }
 }
-function stopGame() {
+function stopGame(isWin) {
   clearInterval(timer);
-  backgroundLayer.innerText= 'Your score is ' + score.innerText;
+
+  backgroundLayer.innerText= isWin?'Congratulations!! You won.':''+'Your score is ' + score.innerText;
   backgroundLayer.classList.remove('is-hidden');
   setTimeout(function(){
     document.location.reload();
@@ -126,6 +132,7 @@ function tileSetting(){
 
 var tileSetting = new tileSetting();
 var tileArr = tileSetting.tile();
+var totalTiles = tileSetting.rowCount*tileSetting.columnCount
 function Slider() {
   this.width=100,
   this.height=15,
@@ -157,24 +164,27 @@ function draw(){
     ctx = canvas.getContext('2d');
     ctx.clearRect(0,0,canvas.width, canvas.height);
     
-    
+    // slider moves right if right button pressed and slider's right edge is inside canvas
     if(isRightPressed && slider.X+slider.VX+(slider.width/2)<=canvas.width){
       slider.X =slider.X+slider.VX;
     }
+    //slider moves left if left button is pressed and slider's left edge is inside canvas
     if(isLeftPressed && slider.X+slider.VX-(slider.width/2)>=0){
       slider.X = slider.X-slider.VX;
       
     }
-  
+    // if ball's X coordinate is within canvas then keep in same direction,  else when ball meets the edges of canvas then change the direction
     if(ball.X+ball.VX+(ball.radius)<=canvas.width && ball.X+ball.VX-(ball.radius)>=0){
       ball.X = ball.X+ball.VX;
     } else {
       ball.VX=-1*ball.VX;
     }
-
+    //if ball's Y coordinate is within canvas
     if(ball.Y+ball.VY+ball.radius<=canvas.height && ball.Y+ball.VY-ball.radius>=0){
+      //if ball touches slider:  if slider's Y and and X coordinates matches with ball's. then change ball's Y direction
       if(ball.Y+ball.radius+ball.VY>=slider.Y-(slider.height/2) && ball.Y+ball.radius+ball.VY<=slider.Y &&  ball.X+ball.VX-ball.radius<=slider.X+slider.VX+slider.width/2 && ball.X+ball.VX+ball.radius>=slider.X+slider.VX-slider.width/2){
         ball.VY = -1*ball.VY
+        //edge touching for slider
         if(ball.X+ball.VX<=slider.X+slider.VX-slider.width/2 || ball.X+ball.VX>=slider.X+slider.VX+slider.width/2){
           ball.VX=-1*ball.VX
         }
@@ -184,7 +194,11 @@ function draw(){
       }
     }
     else{
-      stopGame();
+      if(ball.Y+ball.VY+ball.radius>=canvas.height) {
+        stopGame(false);
+      } else {
+        ball.VY = -1*ball.VY
+      }
     }
     
   }
